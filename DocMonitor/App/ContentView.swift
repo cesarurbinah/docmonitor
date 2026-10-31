@@ -16,6 +16,9 @@ struct ContentView: View {
     @AppStorage("pullExpanded")   private var pullExpanded   = false
     @AppStorage("buildExpanded") private var buildExpanded   = false
     
+    @Environment(\.openWindow) private var openWindow
+    @AppStorage(PreferenceKey.alwaysExpandImages) private var alwaysExpandImages = false
+    
     private static let timer = Timer.publish(every: 5, on: .main, in: .common).autoconnect()
 
     var body: some View {
@@ -149,7 +152,8 @@ struct ContentView: View {
                 // Footer
                 HStack {
                     Button {
-                        // Preferences — static for now
+                        openWindow(id: "preferences")
+                        NSApp.activate()
                     } label: {
                         Text("Preferences")
                             .font(AppFont.action)
@@ -206,6 +210,11 @@ struct ContentView: View {
         }
         .onAppear {
             isVisible = true
+            imagesExpanded = alwaysExpandImages
+            if !alwaysExpandImages {
+                pullExpanded  = false
+                buildExpanded = false
+            }
             refresh()
         }
         .onDisappear {

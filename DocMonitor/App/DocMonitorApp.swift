@@ -11,6 +11,13 @@ struct DocMonitorApp: App {
             ContentView()
         }
         .menuBarExtraStyle(.window)
+        
+        Window("Preferences", id: "preferences") {
+            PreferencesView()
+        }
+        .windowResizability(.contentSize)
+        .defaultLaunchBehavior(.suppressed)
+        .restorationBehavior(.disabled)
     }
 }
 

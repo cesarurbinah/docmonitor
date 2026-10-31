@@ -1,5 +1,4 @@
 import SwiftUI
-import Combine
 
 struct ContentView: View {
 
@@ -15,11 +14,10 @@ struct ContentView: View {
     @AppStorage("imagesExpanded") private var imagesExpanded = false
     @AppStorage("pullExpanded")   private var pullExpanded   = false
     @AppStorage("buildExpanded") private var buildExpanded   = false
+    @AppStorage(PreferenceKey.refreshInterval) private var refreshInterval = PreferenceDefault.refreshInterval
     
     @Environment(\.openWindow) private var openWindow
     @AppStorage(PreferenceKey.alwaysExpandImages) private var alwaysExpandImages = false
-    
-    private static let timer = Timer.publish(every: 5, on: .main, in: .common).autoconnect()
 
     var body: some View {
         ZStack {
@@ -223,9 +221,13 @@ struct ContentView: View {
             buildVM.reset()
             NSApp.keyWindow?.makeFirstResponder(nil)
         }
-        .onReceive(Self.timer) { _ in
-            guard !isComposeBusy else { return }
-            refresh()
+        .task(id: refreshInterval) {
+            let seconds = max(refreshInterval, 1)
+            while !Task.isCancelled {
+                try? await Task.sleep(for: .seconds(seconds))
+                guard !Task.isCancelled, !isComposeBusy else { continue }
+                refresh()
+            }
         }
     }
 

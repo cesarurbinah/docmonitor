@@ -45,17 +45,13 @@ struct PreferencesView: View {
                         .tag(pane)
                 }
             }
-            .navigationSplitViewColumnWidth(190)
-            .onGeometryChange(for: CGSize.self) { $0.size } action: { print("SIDEBAR:", $0) }
+            .navigationSplitViewColumnWidth(min: 190, ideal: 190, max: 190)
         } detail: {
             detail(for: selection ?? .general)
-                .onGeometryChange(for: CGSize.self) { $0.size } action: { print("DETAIL:", $0) }
+                .navigationTitle((selection ?? .general).title)
         }
+        .toolbar(removing: .sidebarToggle)
         .frame(width: 660, height: 420)
-        .onGeometryChange(for: CGSize.self) { $0.size } action: { print("SPLIT:", $0) }
-        .onAppear {
-            print("WINDOWS:", NSApp.windows.map { "\($0.title) \($0.frame)" })
-        }
     }
 
     @ViewBuilder

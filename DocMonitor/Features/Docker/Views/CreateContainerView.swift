@@ -9,28 +9,12 @@ struct CreateContainerView: View {
     @State private var containerName            = ""
     @State private var portBindings: [String]   = [""]
     @State private var envVars: [String]        = [""]
-    @State private var restartPolicy            = RestartPolicy.no
+    @State private var restartPolicy            = RestartPolicy.preferred
     @State private var isCreating               = false
     @State private var validationError: String? = nil
     @State private var portError: String?       = nil
 
-    enum RestartPolicy: String, CaseIterable, Identifiable {
-        case no            = "no"
-        case always        = "always"
-        case unlessStopped = "unless-stopped"
-        case onFailure     = "on-failure"
-
-        var id: String { rawValue }
-
-        var label: String {
-            switch self {
-            case .no:            return "No"
-            case .always:        return "Always"
-            case .unlessStopped: return "Unless Stopped"
-            case .onFailure:     return "On Failure"
-            }
-        }
-    }
+    
 
     var body: some View {
         VStack(spacing: 0) {

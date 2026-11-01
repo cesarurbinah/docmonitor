@@ -1,5 +1,4 @@
 import SwiftUI
-import Combine
 
 struct ContentView: View {
 
@@ -15,8 +14,16 @@ struct ContentView: View {
     @AppStorage("imagesExpanded") private var imagesExpanded = false
     @AppStorage("pullExpanded")   private var pullExpanded   = false
     @AppStorage("buildExpanded") private var buildExpanded   = false
+    @AppStorage(PreferenceKey.showStoppedContainers) private var showStoppedContainers = PreferenceDefault.showStoppedContainers
+    @AppStorage(PreferenceKey.refreshInterval) private var refreshInterval = PreferenceDefault.refreshInterval
     
-    private static let timer = Timer.publish(every: 5, on: .main, in: .common).autoconnect()
+    @Environment(\.openWindow) private var openWindow
+    @AppStorage(PreferenceKey.alwaysExpandImages) private var alwaysExpandImages = false
+    
+    // The full list still drives image locks and name checks; this only affects what is shown
+    private var visibleContainers: [DockerContainer] {
+        showStoppedContainers ? containersVM.containers : containersVM.containers.filter(\.isRunning)
+    }
 
     var body: some View {
         ZStack {
@@ -46,9 +53,9 @@ struct ContentView: View {
                 
                 if !buildExpanded && !pullExpanded {
                     // Containers
-                    if !containersVM.containers.isEmpty {
+                    if !visibleContainers.isEmpty {
                         ContainersView(
-                            containers: containersVM.containers,
+                            containers: visibleContainers,
                             lockedComposeProject: composeVM.lockedComposeProject,
                             activeComposeProjects: composeVM.activeComposeProjects,
                             onToggle: { container in await containersVM.toggle(container) },
@@ -121,7 +128,7 @@ struct ContentView: View {
                     onCreateContainer: { image, name, ports, envVars, restartPolicy in
                         return await containersVM.createContainer(
                             name: name,
-                            imageName: image.displayTag,
+                            imageName: image.reference,
                             portBindings: ports,
                             envVars: envVars,
                             restartPolicy: restartPolicy
@@ -149,7 +156,8 @@ struct ContentView: View {
                 // Footer
                 HStack {
                     Button {
-                        // Preferences — static for now
+                        openWindow(id: "preferences")
+                        NSApp.activate()
                     } label: {
                         Text("Preferences")
                             .font(AppFont.action)
@@ -206,6 +214,12 @@ struct ContentView: View {
         }
         .onAppear {
             isVisible = true
+            imagesExpanded = alwaysExpandImages
+            if !alwaysExpandImages {
+                pullExpanded  = false
+                buildExpanded = false
+            }
+            composeVM.persistProjects()
             refresh()
         }
         .onDisappear {
@@ -214,9 +228,13 @@ struct ContentView: View {
             buildVM.reset()
             NSApp.keyWindow?.makeFirstResponder(nil)
         }
-        .onReceive(Self.timer) { _ in
-            guard !isComposeBusy else { return }
-            refresh()
+        .task(id: refreshInterval) {
+            let seconds = max(refreshInterval, 1)
+            while !Task.isCancelled {
+                try? await Task.sleep(for: .seconds(seconds))
+                guard !Task.isCancelled, !isComposeBusy else { continue }
+                refresh()
+            }
         }
     }
 

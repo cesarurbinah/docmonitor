@@ -18,13 +18,14 @@
 - **Consola:** abre una terminal dentro de un contenedor desde la barra de menús.
 - **Imágenes:** listar, descargar (pull), eliminar y construir desde un Dockerfile.
 - **Creación de contenedores:** crea un contenedor directamente desde una imagen.
-- **Docker Compose:** `up` y `down` de proyectos, y añadir proyectos manualmente.
+- **Docker Compose:** `up` y `down` de proyectos, añadirlos manualmente y conservarlos entre sesiones (opcional).
+- **Preferencias:** intervalo de actualización, abrir al iniciar sesión, rutas del socket y del CLI de Docker, shell de la consola, política de reinicio por defecto, visibilidad de imágenes sin etiqueta y de contenedores detenidos, y búsqueda de actualizaciones.
 - **Nativa:** desarrollada con Swift y SwiftUI, con el diseño Liquid Glass de macOS 26. Se comunica con Docker directamente a través de su socket Unix, así que no hay Electron ni un runtime adicional.
 
 ## Requisitos
 
 - macOS 26 (Tahoe) o posterior.
-- Un motor de Docker en ejecución accesible en `/var/run/docker.sock` (por ejemplo, Docker Desktop).
+- Un motor de Docker en ejecución. Docker Desktop, OrbStack, Colima y Rancher Desktop se detectan automáticamente; para cualquier otro caso, indica la ruta del socket en **Preferences → Docker**.
 
 ## Instalación
 

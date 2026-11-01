@@ -25,11 +25,24 @@ class TerminalService {
     }
 
     func openShell(containerName: String) throws {
-        let quotedName  = shellQuoted(containerName)
-        let dockerCommand = "docker exec -it \(quotedName) bash || docker exec -it \(quotedName) sh"
+        let candidates = ConsoleShell.current.candidates.joined(separator: " ")
+        let cli        = DockerEnvironment.isCLICustom ? DockerEnvironment.cliPath : "docker"
+
+        // Probe each shell with a non-interactive `-c true` (unambiguous exit status),
+        // then replace the process with the real interactive session
+        let script = [
+            "export DOCKER_HOST=\(shellQuoted(DockerEnvironment.dockerHost));",
+            "d=\(shellQuoted(cli)); n=\(shellQuoted(containerName));",
+            "for s in \(candidates); do",
+            "\"$d\" exec \"$n\" \"$s\" -c true >/dev/null 2>&1 && exec \"$d\" exec -it \"$n\" \"$s\";",
+            "done;",
+            "echo \"No supported shell found in $n (tried: \(candidates))\" >&2; exit 127",
+        ].joined(separator: " ")
+
+        let dockerCommand  = "/bin/sh -c " + shellQuoted(script)
         let escapedCommand = appleScriptQuoted(dockerCommand)
 
-        let script = """
+        let appleScript = """
         tell application "Terminal"
             do script "\(escapedCommand)"
             activate
@@ -38,7 +51,7 @@ class TerminalService {
 
         let process = Process()
         process.executableURL = URL(fileURLWithPath: "/usr/bin/osascript")
-        process.arguments = ["-e", script]
+        process.arguments = ["-e", appleScript]
 
         do {
             try process.run()

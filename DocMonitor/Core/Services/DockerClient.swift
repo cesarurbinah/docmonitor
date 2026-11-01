@@ -3,7 +3,6 @@ import Foundation
 class DockerClient {
 
     static let shared = DockerClient()
-    private let socketPath = "/var/run/docker.sock"
     
     private static let jsonDecoder = JSONDecoder()
 
@@ -141,7 +140,7 @@ class DockerClient {
     func fetchImages() async throws -> [DockerImage] {
         let responseData = try await performBlocking {
             try self.sendRequest(
-                "GET /images/json?dangling=false HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n"
+                "GET /images/json HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n"
             )
         }
 
@@ -265,7 +264,7 @@ class DockerClient {
     
     private func openDockerSocket() throws -> Int32 {
         do {
-            return try UnixSocket.makeConnection(to: socketPath)
+            return try DockerEnvironment.connect().fd
         } catch UnixSocketError.notFound {
             throw DockerError.socketNotFound
         } catch {

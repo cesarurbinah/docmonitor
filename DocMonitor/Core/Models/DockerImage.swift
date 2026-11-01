@@ -24,6 +24,14 @@ struct DockerImage: Identifiable, Decodable {
         }
         return tag
     }
+    
+    var isUntagged: Bool {
+        guard let tags = repoTags, !tags.isEmpty else { return true }
+        return tags.allSatisfy { $0 == "<none>:<none>" }
+    }
+
+    // What to pass to Docker to refer to this image: its tag, or its ID when untagged
+    var reference: String { isUntagged ? id : displayTag }
 
     var name: String {
         let tag = displayTag

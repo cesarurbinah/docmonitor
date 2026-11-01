@@ -23,6 +23,8 @@ class DockerBuildService {
             "/Applications/Docker.app/Contents/Resources/bin"
         ].joined(separator: ":")
         process.environment = env
+        
+        env["DOCKER_HOST"] = DockerEnvironment.dockerHost
 
         let throttleQueue               = DispatchQueue(label: "docmonitor.build-output-throttle")
         var pendingOutput               = ""

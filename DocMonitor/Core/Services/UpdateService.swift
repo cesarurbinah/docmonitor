@@ -20,13 +20,8 @@ nonisolated struct LatestRelease {
 }
 
 nonisolated struct UpdateService {
-
-    static let latestReleaseURL = URL(string: "https://github.com/cessadev/docmonitor/releases/latest")!
-
-    // Follows GitHub's `releases/latest` redirect, which ends on `/releases/tag/<tag>`.
-    // Unlike the REST API, this isn't capped at 60 requests/hour per IP.
     func fetchLatestRelease() async throws -> LatestRelease {
-        var request = URLRequest(url: Self.latestReleaseURL)
+        var request = URLRequest(url: AppLinks.latestRelease)
         request.httpMethod = "HEAD"
         request.timeoutInterval = 10
 

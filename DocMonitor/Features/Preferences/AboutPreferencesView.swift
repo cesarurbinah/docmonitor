@@ -35,6 +35,28 @@ struct AboutPreferencesView: View {
 
                 updateResult
             }
+            
+            Divider()
+
+            PreferenceRow(
+                title: "Source code",
+                description: "Browse the repository, report issues and read the contributing guide on GitHub."
+            ) {
+                Button("Open") {
+                    NSWorkspace.shared.open(AppLinks.repository)
+                }
+            }
+
+            Divider()
+
+            PreferenceRow(
+                title: "License",
+                description: "Released under PolyForm Strict 1.0.0. The source is available, but it isn't an open-source license: read it for what you can and can't do."
+            ) {
+                Button("View license") {
+                    NSWorkspace.shared.open(AppLinks.license)
+                }
+            }
 
             Spacer()
         }

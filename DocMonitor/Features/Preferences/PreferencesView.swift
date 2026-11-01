@@ -16,6 +16,7 @@ enum PreferencesPane: String, CaseIterable, Identifiable {
     case general
     case docker
     case containersImages
+    case about
 
     var id: String { rawValue }
 
@@ -24,6 +25,7 @@ enum PreferencesPane: String, CaseIterable, Identifiable {
         case .general:          return "General"
         case .docker:           return "Docker"
         case .containersImages: return "Containers & Images"
+        case .about:            return "About"
         }
     }
 
@@ -32,6 +34,7 @@ enum PreferencesPane: String, CaseIterable, Identifiable {
         case .general:          return "gearshape"
         case .docker:           return "shippingbox"
         case .containersImages: return "square.stack.3d.up"
+        case .about:            return "info.circle"
         }
     }
 }
@@ -66,6 +69,8 @@ struct PreferencesView: View {
             DockerPreferencesView()
         case .containersImages:
             ContainersImagesPreferencesView()
+        case .about:
+            AboutPreferencesView()
         }
     }
 }

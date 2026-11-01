@@ -9,17 +9,12 @@ struct ContainersImagesPreferencesView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             PreferenceRow(
-                title: "Default restart policy",
-                description: "Restart policy preselected when you create a container. You can still change it for each container."
+                title: "Show stopped containers",
+                description: "Include stopped containers in the list. When off, only running containers are shown; stopped ones still exist in Docker."
             ) {
-                Picker("Default restart policy", selection: $defaultRestartPolicy) {
-                    ForEach(RestartPolicy.allCases) { policy in
-                        Text(policy.label).tag(policy)
-                    }
-                }
-                .labelsHidden()
-                .pickerStyle(.menu)
-                .frame(width: 150)
+                Toggle("Show stopped containers", isOn: $showStoppedContainers)
+                    .labelsHidden()
+                    .toggleStyle(.switch)
             }
 
             Divider()
@@ -36,12 +31,17 @@ struct ContainersImagesPreferencesView: View {
             Divider()
 
             PreferenceRow(
-                title: "Show stopped containers",
-                description: "Include stopped containers in the list. When off, only running containers are shown; stopped ones still exist in Docker."
+                title: "Default restart policy",
+                description: "Restart policy preselected when you create a container. You can still change it for each container."
             ) {
-                Toggle("Show stopped containers", isOn: $showStoppedContainers)
-                    .labelsHidden()
-                    .toggleStyle(.switch)
+                Picker("Default restart policy", selection: $defaultRestartPolicy) {
+                    ForEach(RestartPolicy.allCases) { policy in
+                        Text(policy.label).tag(policy)
+                    }
+                }
+                .labelsHidden()
+                .pickerStyle(.menu)
+                .frame(width: 150)
             }
 
             Spacer()

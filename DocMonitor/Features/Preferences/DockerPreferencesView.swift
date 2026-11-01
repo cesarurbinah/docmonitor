@@ -7,6 +7,7 @@ struct DockerPreferencesView: View {
     @AppStorage(DockerEnvironment.Keys.socketCustomPath) private var socketCustomPath = ""
     @AppStorage(DockerEnvironment.Keys.cliMode)          private var cliMode          = DockerEnvironment.Mode.automatic
     @AppStorage(DockerEnvironment.Keys.cliCustomPath)    private var cliCustomPath    = ""
+    @AppStorage(ConsoleShell.key) private var consoleShell = ConsoleShell.automatic
 
     @State private var socketCaption = "Detecting…"
 
@@ -35,6 +36,22 @@ struct DockerPreferencesView: View {
                 validationMessage: validation(for: cliCustomPath, requiresExecutable: true),
                 onBrowse: chooseCLI
             )
+            
+            Divider()
+
+            PreferenceRow(
+                title: "Console shell",
+                description: "Shell opened by a container's console. Automatic tries bash and falls back to sh; a specific choice doesn't fall back."
+            ) {
+                Picker("Console shell", selection: $consoleShell) {
+                    ForEach(ConsoleShell.allCases) { shell in
+                        Text(shell.title).tag(shell)
+                    }
+                }
+                .labelsHidden()
+                .pickerStyle(.menu)
+                .frame(width: 110)
+            }
 
             Spacer()
         }

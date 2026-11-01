@@ -30,7 +30,9 @@ class TerminalService {
         let docker     = "DOCKER_HOST=\(host) " + (DockerEnvironment.isCLICustom
             ? shellQuoted(DockerEnvironment.cliPath)
             : "docker")
-        let dockerCommand  = "\(docker) exec -it \(quotedName) bash || \(docker) exec -it \(quotedName) sh"
+        let dockerCommand = ConsoleShell.current.candidates
+            .map { "\(docker) exec -it \(quotedName) \($0)" }
+            .joined(separator: " || ")
         let escapedCommand = appleScriptQuoted(dockerCommand)
 
         let script = """

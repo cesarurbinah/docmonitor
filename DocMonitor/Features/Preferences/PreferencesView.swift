@@ -1,4 +1,5 @@
 import SwiftUI
+import AppKit
 
 enum PreferenceKey {
     static let alwaysExpandImages    = "alwaysExpandImages"
@@ -61,6 +62,7 @@ struct PreferencesView: View {
         }
         .toolbar(removing: .sidebarToggle)
         .frame(width: 660, height: 420)
+        .background(MoveToActiveSpace())
     }
 
     @ViewBuilder
@@ -96,6 +98,19 @@ struct PreferenceRow<Control: View>: View {
             }
             Spacer()
             control()
+        }
+    }
+}
+
+private struct MoveToActiveSpace: NSViewRepresentable {
+
+    func makeNSView(context: Context) -> NSView { SpaceConfiguringView() }
+    func updateNSView(_ nsView: NSView, context: Context) {}
+
+    private final class SpaceConfiguringView: NSView {
+        override func viewDidMoveToWindow() {
+            super.viewDidMoveToWindow()
+            window?.collectionBehavior.insert(.moveToActiveSpace)
         }
     }
 }

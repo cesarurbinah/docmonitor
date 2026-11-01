@@ -27,12 +27,32 @@ class ComposeViewModel {
         )
     }
     
+    init() {
+        let saved = ComposeProjectStore.load()
+            .filter { FileManager.default.fileExists(atPath: $0) }
+
+        manualPaths = Set(saved)
+        projects    = saved
+            .map { path in
+                DockerComposeProject(
+                    name: URL(fileURLWithPath: path).deletingLastPathComponent().lastPathComponent,
+                    filePath: path
+                )
+            }
+            .sorted { $0.displayName.lowercased() < $1.displayName.lowercased() }
+    }
+    
     private var manualPaths = Set<String>()
 
     private let composeService = ComposeService.shared
 
     private func performBlocking<T: Sendable>(_ work: @escaping @Sendable () -> T) async -> T {
         await Task.detached(priority: .userInitiated, operation: work).value
+    }
+    
+    @MainActor
+    func persistProjects() {
+        ComposeProjectStore.save(Array(manualPaths))
     }
 
     @MainActor
@@ -98,6 +118,7 @@ class ComposeViewModel {
     func remove(_ project: DockerComposeProject) {
         projects.removeAll { $0.id == project.id }
         manualPaths.remove(project.filePath)
+        persistProjects()
     }
 
     // Add a project manually via file picker
@@ -132,6 +153,7 @@ class ComposeViewModel {
                 enriched.serviceStatuses = self.composeService.refreshStatus(for: project)
                 self.projects.append(enriched)
                 self.projects.sort { $0.displayName.lowercased() < $1.displayName.lowercased() }
+                self.persistProjects()
             }
         }
     }

@@ -219,6 +219,7 @@ struct ContentView: View {
                 pullExpanded  = false
                 buildExpanded = false
             }
+            composeVM.persistProjects()
             refresh()
         }
         .onDisappear {

@@ -3,8 +3,8 @@
     {
       "value" : {
         "linear-gradient" : [
-          "display-p3:0.36786,0.45308,0.74799,1.00000",
-          "display-p3:0.21178,0.31222,0.64750,1.00000"
+          "display-p3:0.34438,0.42193,0.71049,1.00000",
+          "display-p3:0.19584,0.29494,0.62500,1.00000"
         ],
         "orientation" : {
           "start" : {
@@ -35,23 +35,23 @@
           "image-name" : "DockerIcon.svg",
           "name" : "DockerIcon",
           "position" : {
-            "scale" : 1,
+            "scale" : 1.2,
             "translation-in-points" : [
-              0,
-              0
+              8.31655569044517,
+              -25.01367536239991
             ]
           }
         },
         {
           "blend-mode" : "normal",
-          "glass" : false,
+          "glass" : true,
           "image-name" : "BandejaIcon.svg",
           "name" : "BandejaIcon",
           "position" : {
-            "scale" : 1,
+            "scale" : 1.2,
             "translation-in-points" : [
-              0.7,
-              20.068376811999997
+              0.854737134445213,
+              -0.9316231880000032
             ]
           }
         }

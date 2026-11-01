@@ -18,13 +18,14 @@
 - **Console:** open a terminal inside a container from the menu bar.
 - **Images:** list, pull, delete and build from a Dockerfile.
 - **Container creation:** create a container straight from an image.
-- **Docker Compose:** `up` and `down` projects, and add projects manually.
+- **Docker Compose:** `up` and `down` projects, add them manually, and keep them between launches (optional).
+- **Preferences:** refresh interval, launch at login, Docker socket and CLI paths, console shell, default restart policy, visibility of untagged images and stopped containers, and update checks.
 - **Native:** built with Swift and SwiftUI, with the macOS 26 Liquid Glass design. It talks to Docker directly through its Unix socket, so there is no Electron and no extra runtime.
 
 ## Requirements
 
 - macOS 26 (Tahoe) or later.
-- A running Docker engine reachable at `/var/run/docker.sock` (for example, Docker Desktop).
+- A running Docker engine. Docker Desktop, OrbStack, Colima and Rancher Desktop are detected automatically; for anything else, set the socket path in **Preferences → Docker**.
 
 ## Installation
 

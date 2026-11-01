@@ -71,6 +71,7 @@ class ComposeService {
         process.environment = [
             "PATH": "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/homebrew/bin:/opt/homebrew/sbin:/Applications/Docker.app/Contents/Resources/bin",
             "HOME": FileManager.default.homeDirectoryForCurrentUser.path,
+            "DOCKER_HOST": DockerEnvironment.dockerHost,
         ]
 
         try process.run()

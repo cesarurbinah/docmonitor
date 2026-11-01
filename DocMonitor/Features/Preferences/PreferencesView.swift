@@ -59,7 +59,9 @@ struct PreferencesView: View {
         switch pane {
         case .general:
             GeneralPreferencesView()
-        case .docker, .containersImages:
+        case .docker:
+            DockerPreferencesView()
+        case .containersImages:
             ContentUnavailableView(
                 "No settings yet",
                 systemImage: pane.icon,

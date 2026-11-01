@@ -9,7 +9,6 @@ class ServicesViewModel {
     ]
 
     private let processService = SystemProcessService()
-    private let dockerSocketPath = "/var/run/docker.sock"
 
     func refresh() {
         Task.detached(priority: .utility) {
@@ -32,17 +31,15 @@ class ServicesViewModel {
                 if let index = self.services.indices.first(where: {
                     self.services[$0].processName.lowercased() == "docker"
                 }) {
-                    self.services[index].isRunning = self.services[index].isRunning && socketReachable
+                    self.services[index].isRunning = socketReachable
                 }
             }
         }
     }
 
     private nonisolated func isDockerSocketReachable() -> Bool {
-        guard let fd = try? UnixSocket.makeConnection(to: dockerSocketPath) else {
-            return false
-        }
-        close(fd)
+        guard let connection = try? DockerEnvironment.connect() else { return false }
+        close(connection.fd)
         return true
     }
 }

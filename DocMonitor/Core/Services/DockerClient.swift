@@ -3,7 +3,6 @@ import Foundation
 class DockerClient {
 
     static let shared = DockerClient()
-    private let socketPath = "/var/run/docker.sock"
     
     private static let jsonDecoder = JSONDecoder()
 
@@ -265,7 +264,7 @@ class DockerClient {
     
     private func openDockerSocket() throws -> Int32 {
         do {
-            return try UnixSocket.makeConnection(to: socketPath)
+            return try DockerEnvironment.connect().fd
         } catch UnixSocketError.notFound {
             throw DockerError.socketNotFound
         } catch {

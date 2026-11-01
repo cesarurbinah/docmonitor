@@ -25,8 +25,12 @@ class TerminalService {
     }
 
     func openShell(containerName: String) throws {
-        let quotedName  = shellQuoted(containerName)
-        let dockerCommand = "docker exec -it \(quotedName) bash || docker exec -it \(quotedName) sh"
+        let quotedName = shellQuoted(containerName)
+        let host       = shellQuoted(DockerEnvironment.dockerHost)
+        let docker     = "DOCKER_HOST=\(host) " + (DockerEnvironment.isCLICustom
+            ? shellQuoted(DockerEnvironment.cliPath)
+            : "docker")
+        let dockerCommand  = "\(docker) exec -it \(quotedName) bash || \(docker) exec -it \(quotedName) sh"
         let escapedCommand = appleScriptQuoted(dockerCommand)
 
         let script = """

@@ -45,14 +45,17 @@ struct PreferencesView: View {
                         .tag(pane)
                 }
             }
-            .navigationSplitViewColumnWidth(min: 190, ideal: 190, max: 190)
+            .navigationSplitViewColumnWidth(190)
+            .onGeometryChange(for: CGSize.self) { $0.size } action: { print("SIDEBAR:", $0) }
         } detail: {
             detail(for: selection ?? .general)
-                .navigationTitle((selection ?? .general).title)
+                .onGeometryChange(for: CGSize.self) { $0.size } action: { print("DETAIL:", $0) }
         }
-        .toolbar(removing: .sidebarToggle)
         .frame(width: 660, height: 420)
-        .onAppear { NSApp.activate() }
+        .onGeometryChange(for: CGSize.self) { $0.size } action: { print("SPLIT:", $0) }
+        .onAppear {
+            print("WINDOWS:", NSApp.windows.map { "\($0.title) \($0.frame)" })
+        }
     }
 
     @ViewBuilder
@@ -70,7 +73,6 @@ struct PreferencesView: View {
     }
 }
 
-// Shared layout for a single preference: title + description on the left, control on the right
 struct PreferenceRow<Control: View>: View {
     let title: String
     let description: String
@@ -84,7 +86,6 @@ struct PreferenceRow<Control: View>: View {
                 Text(description)
                     .font(AppFont.caption)
                     .foregroundStyle(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
             }
             Spacer()
             control()

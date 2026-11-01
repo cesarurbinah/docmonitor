@@ -140,7 +140,7 @@ class DockerClient {
     func fetchImages() async throws -> [DockerImage] {
         let responseData = try await performBlocking {
             try self.sendRequest(
-                "GET /images/json?dangling=false HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n"
+                "GET /images/json HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n"
             )
         }
 

@@ -2,7 +2,8 @@ import SwiftUI
 
 struct ContainersImagesPreferencesView: View {
 
-    @AppStorage(RestartPolicy.defaultsKey) private var defaultRestartPolicy = RestartPolicy.no
+    @AppStorage(RestartPolicy.defaultsKey)        private var defaultRestartPolicy = RestartPolicy.no
+    @AppStorage(PreferenceKey.showUntaggedImages) private var showUntaggedImages   = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -18,6 +19,17 @@ struct ContainersImagesPreferencesView: View {
                 .labelsHidden()
                 .pickerStyle(.menu)
                 .frame(width: 150)
+            }
+
+            Divider()
+
+            PreferenceRow(
+                title: "Show untagged images",
+                description: "Include images without a name or tag, such as the old version left behind after rebuilding an image. Useful to find and delete them."
+            ) {
+                Toggle("Show untagged images", isOn: $showUntaggedImages)
+                    .labelsHidden()
+                    .toggleStyle(.switch)
             }
 
             Spacer()

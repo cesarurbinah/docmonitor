@@ -122,7 +122,7 @@ struct ContentView: View {
                     onCreateContainer: { image, name, ports, envVars, restartPolicy in
                         return await containersVM.createContainer(
                             name: name,
-                            imageName: image.displayTag,
+                            imageName: image.reference,
                             portBindings: ports,
                             envVars: envVars,
                             restartPolicy: restartPolicy

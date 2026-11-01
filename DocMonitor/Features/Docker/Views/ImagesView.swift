@@ -89,7 +89,7 @@ struct ImagesView: View {
                                         .padding(.horizontal, 8)
 
                                     CreateContainerView(
-                                        imageName: image.displayTag,
+                                        imageName: image.reference,
                                         onCreate: { name, ports, envVars, restartPolicy in
                                             await onCreateContainer(image, name, ports, envVars, restartPolicy)
                                         },

@@ -16,10 +16,8 @@ class ImagesViewModel {
     func refresh() async {
         do {
             let all = try await dockerClient.fetchImages()
-            images  = all.filter { image in
-                guard let tags = image.repoTags, !tags.isEmpty else { return false }
-                return !tags.allSatisfy { $0 == "<none>:<none>" }
-            }
+            let showUntagged = UserDefaults.standard.bool(forKey: PreferenceKey.showUntaggedImages)
+            images = showUntagged ? all : all.filter { !$0.isUntagged }
             error = nil
         } catch {
             self.error = error.localizedDescription

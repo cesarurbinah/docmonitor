@@ -3,6 +3,7 @@ import SwiftUI
 enum PreferenceKey {
     static let alwaysExpandImages = "alwaysExpandImages"
     static let refreshInterval    = "refreshInterval"
+    static let showUntaggedImages = "showUntaggedImages"
 }
 
 enum PreferenceDefault {

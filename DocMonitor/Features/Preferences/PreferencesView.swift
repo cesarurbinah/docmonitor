@@ -62,11 +62,7 @@ struct PreferencesView: View {
         case .docker:
             DockerPreferencesView()
         case .containersImages:
-            ContentUnavailableView(
-                "No settings yet",
-                systemImage: pane.icon,
-                description: Text("Options for \(pane.title) will appear here.")
-            )
+            ContainersImagesPreferencesView()
         }
     }
 }

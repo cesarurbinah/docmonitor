@@ -1,13 +1,15 @@
 import SwiftUI
 
 enum PreferenceKey {
-    static let alwaysExpandImages = "alwaysExpandImages"
-    static let refreshInterval    = "refreshInterval"
-    static let showUntaggedImages = "showUntaggedImages"
+    static let alwaysExpandImages    = "alwaysExpandImages"
+    static let refreshInterval       = "refreshInterval"
+    static let showUntaggedImages    = "showUntaggedImages"
+    static let showStoppedContainers = "showStoppedContainers"
 }
 
 enum PreferenceDefault {
     static let refreshInterval = 5
+    static let showStoppedContainers = true
 }
 
 enum PreferencesPane: String, CaseIterable, Identifiable {

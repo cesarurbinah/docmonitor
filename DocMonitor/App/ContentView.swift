@@ -14,10 +14,16 @@ struct ContentView: View {
     @AppStorage("imagesExpanded") private var imagesExpanded = false
     @AppStorage("pullExpanded")   private var pullExpanded   = false
     @AppStorage("buildExpanded") private var buildExpanded   = false
+    @AppStorage(PreferenceKey.showStoppedContainers) private var showStoppedContainers = PreferenceDefault.showStoppedContainers
     @AppStorage(PreferenceKey.refreshInterval) private var refreshInterval = PreferenceDefault.refreshInterval
     
     @Environment(\.openWindow) private var openWindow
     @AppStorage(PreferenceKey.alwaysExpandImages) private var alwaysExpandImages = false
+    
+    // The full list still drives image locks and name checks; this only affects what is shown
+    private var visibleContainers: [DockerContainer] {
+        showStoppedContainers ? containersVM.containers : containersVM.containers.filter(\.isRunning)
+    }
 
     var body: some View {
         ZStack {
@@ -47,9 +53,9 @@ struct ContentView: View {
                 
                 if !buildExpanded && !pullExpanded {
                     // Containers
-                    if !containersVM.containers.isEmpty {
+                    if !visibleContainers.isEmpty {
                         ContainersView(
-                            containers: containersVM.containers,
+                            containers: visibleContainers,
                             lockedComposeProject: composeVM.lockedComposeProject,
                             activeComposeProjects: composeVM.activeComposeProjects,
                             onToggle: { container in await containersVM.toggle(container) },

@@ -49,7 +49,7 @@ struct PreferencesView: View {
     @State private var launchVM = LaunchAtLoginViewModel()
 
     var body: some View {
-        NavigationSplitView {
+        NavigationSplitView(columnVisibility: .constant(.all)) {
             List(selection: $selection) {
                 ForEach(PreferencesPane.allCases) { pane in
                     Label(pane.title, systemImage: pane.icon)
@@ -61,9 +61,9 @@ struct PreferencesView: View {
             detail(for: selection ?? .general)
                 .navigationTitle((selection ?? .general).title)
         }
-        .toolbar(removing: .sidebarToggle)
         .frame(width: 660, height: 420)
         .background(MoveToActiveSpace())
+        .background(HideSidebarToggle())
     }
 
     @ViewBuilder
@@ -112,6 +112,39 @@ private struct MoveToActiveSpace: NSViewRepresentable {
         override func viewDidMoveToWindow() {
             super.viewDidMoveToWindow()
             window?.collectionBehavior.insert(.moveToActiveSpace)
+        }
+    }
+}
+
+private struct HideSidebarToggle: NSViewRepresentable {
+
+    func makeNSView(context: Context) -> NSView { ToggleHidingView() }
+
+    func updateNSView(_ nsView: NSView, context: Context) {
+        _ = (nsView as? ToggleHidingView)?.hideToggle()
+    }
+
+    private final class ToggleHidingView: NSView {
+
+        override func viewDidMoveToWindow() {
+            super.viewDidMoveToWindow()
+            Task { @MainActor [weak self] in
+                for _ in 0..<20 {
+                    if self?.hideToggle() == true { return }
+                    try? await Task.sleep(for: .milliseconds(50))
+                }
+            }
+        }
+
+        func hideToggle() -> Bool {
+            guard let items = window?.toolbar?.items, !items.isEmpty else { return false }
+            #if DEBUG
+            print("Toolbar items:", items.map(\.itemIdentifier.rawValue))
+            #endif
+            for item in items where item.itemIdentifier.rawValue.localizedCaseInsensitiveContains("toggleSidebar") {
+                item.isHidden = true
+            }
+            return true
         }
     }
 }

@@ -157,7 +157,7 @@ struct ContentView: View {
                 HStack {
                     Button {
                         openWindow(id: "preferences")
-                        NSApp.activate()
+                        NSApp.activate(ignoringOtherApps: true)
                     } label: {
                         Text("Preferences")
                             .font(AppFont.action)

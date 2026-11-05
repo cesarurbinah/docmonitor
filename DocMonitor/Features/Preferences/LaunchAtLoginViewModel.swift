@@ -5,6 +5,7 @@ import ServiceManagement
 final class LaunchAtLoginViewModel {
 
     private(set) var status: SMAppService.Status = .notRegistered
+    private(set) var hasLoaded = false
     private(set) var errorMessage: String?
 
     var isEnabled: Bool    { status == .enabled }
@@ -13,6 +14,7 @@ final class LaunchAtLoginViewModel {
     @MainActor
     func refresh() async {
         status = await Task.detached { SMAppService.mainApp.status }.value
+        hasLoaded = true
     }
 
     @MainActor

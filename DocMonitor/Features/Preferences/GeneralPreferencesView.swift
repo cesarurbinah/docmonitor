@@ -4,7 +4,12 @@ struct GeneralPreferencesView: View {
 
     @AppStorage(PreferenceKey.alwaysExpandImages) private var alwaysExpandImages = false
     @AppStorage(PreferenceKey.refreshInterval)    private var refreshInterval    = PreferenceDefault.refreshInterval
-    @State private var launchVM = LaunchAtLoginViewModel()
+    
+    let launchVM: LaunchAtLoginViewModel
+    
+    init(launchVM: LaunchAtLoginViewModel) {
+        self.launchVM = launchVM
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -40,12 +45,7 @@ struct GeneralPreferencesView: View {
                     title: "Launch at login",
                     description: "Open DocMonitor automatically when you log in to your Mac."
                 ) {
-                    Toggle("Launch at login", isOn: Binding(
-                        get: { launchVM.isEnabled },
-                        set: { newValue in Task { await launchVM.setEnabled(newValue) } }
-                    ))
-                    .labelsHidden()
-                    .toggleStyle(.switch)
+                    launchControl
                 }
 
                 launchNotice
@@ -77,6 +77,22 @@ struct GeneralPreferencesView: View {
             Text(message)
                 .font(AppFont.caption)
                 .foregroundStyle(.red)
+        }
+    }
+    
+    @ViewBuilder
+    private var launchControl: some View {
+        if launchVM.hasLoaded {
+            Toggle("Launch at login", isOn: Binding(
+                get: { launchVM.isEnabled },
+                set: { newValue in Task { await launchVM.setEnabled(newValue) } }
+            ))
+            .labelsHidden()
+            .toggleStyle(.switch)
+        } else {
+            ProgressView()
+                .controlSize(.small)
+                .frame(width: 38, height: 22)
         }
     }
 }

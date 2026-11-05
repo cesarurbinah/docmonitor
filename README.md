@@ -38,7 +38,7 @@ DocMonitor is source-available and distributed **without Apple notarization** (s
    ```
 3. Unzip it and move `DocMonitor.app` to your `Applications` folder.
 4. Open it. macOS will say it could not verify the app. Click **Done** (not "Move to Trash").
-5. Open **System Settings → Privacy & Security**, scroll to the **Security** section and click **Open Anyway** next to the DocMonitor message. Confirm with your password or Touch ID, then click **Open**.
+5. Open **System Settings → Privacy & Security**, scroll to the **Security** section and click **Open Anyway** next to the DocMonitor message. Select **Open Anyway** again if macOS asks you to do so. Finally, confirm with your password or Touch ID and click **Open**.
 
 If you prefer the terminal, you can instead remove the quarantine flag that macOS adds to downloaded files:
 

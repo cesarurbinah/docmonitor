@@ -38,7 +38,7 @@ DocMonitor es de código disponible (*source-available*) y se distribuye **sin n
    ```
 3. Descomprímelo y mueve `DocMonitor.app` a tu carpeta `Aplicaciones`.
 4. Ábrela. macOS dirá que no pudo verificar la app. Pulsa **Listo** (no "Mover al basurero").
-5. Abre **Ajustes del Sistema → Privacidad y seguridad**, baja hasta la sección **Seguridad** y pulsa **Abrir de todos modos** junto al mensaje de DocMonitor. Confirma con tu contraseña o Touch ID y pulsa **Abrir**.
+5. Abre **Ajustes del Sistema → Privacidad y seguridad**, baja hasta la sección **Seguridad** y pulsa **Abrir de todos modos** junto al mensaje de DocMonitor. Elige otra vez **Abrir de todos modos** si macOS lo vuelve a pedir. Por último, confirma con tu contraseña o Touch ID y pulsa **Abrir**.
 
 Si prefieres la terminal, puedes quitar el indicador de cuarentena que macOS añade a los archivos descargados:
 

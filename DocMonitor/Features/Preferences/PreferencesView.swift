@@ -46,6 +46,7 @@ enum PreferencesPane: String, CaseIterable, Identifiable {
 struct PreferencesView: View {
 
     @State private var selection: PreferencesPane? = .general
+    @State private var launchVM = LaunchAtLoginViewModel()
 
     var body: some View {
         NavigationSplitView {
@@ -69,7 +70,7 @@ struct PreferencesView: View {
     private func detail(for pane: PreferencesPane) -> some View {
         switch pane {
         case .general:
-            GeneralPreferencesView()
+            GeneralPreferencesView(launchVM: launchVM)
         case .docker:
             DockerPreferencesView()
         case .containersImages:

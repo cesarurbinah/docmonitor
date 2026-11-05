@@ -52,8 +52,13 @@ struct PreferencesView: View {
         NavigationSplitView(columnVisibility: .constant(.all)) {
             List(selection: $selection) {
                 ForEach(PreferencesPane.allCases) { pane in
-                    Label(pane.title, systemImage: pane.icon)
-                        .tag(pane)
+                    Label {
+                        Text(pane.title)
+                    } icon: {
+                        Image(systemName: pane.icon)
+                            .font(.system(size: 16.5))
+                    }
+                    .tag(pane)
                 }
             }
             .navigationSplitViewColumnWidth(min: 190, ideal: 190, max: 190)

@@ -185,6 +185,7 @@ struct ContentView: View {
         }
         .frame(width: 308)
         .fixedSize(horizontal: false, vertical: true)
+        .background(CenterUnderStatusItem())
         .scaleEffect(isVisible ? 1.0 : 0.92)
         .opacity(isVisible ? 1.0 : 0)
         .animation(.spring(duration: 0.35, bounce: 0.15), value: imagesVM.images.count)

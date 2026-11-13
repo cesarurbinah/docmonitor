@@ -1,7 +1,7 @@
 import Foundation
 import AppKit
 
-class SystemProcessService {
+nonisolated class SystemProcessService {
 
     func runningProcessNames() -> [String] {
         let process = Process()
@@ -10,12 +10,11 @@ class SystemProcessService {
         process.arguments      = ["-eo", "comm"]
         process.standardOutput = pipe
 
-        do {
-            try process.run()
-            process.waitUntilExit()
-        } catch { return [] }
+        do { try process.run() } catch { return [] }
 
-        let data   = pipe.fileHandleForReading.readDataToEndOfFile()
+        let data = pipe.fileHandleForReading.readDataToEndOfFile()
+        process.waitUntilExit()
+
         let output = String(data: data, encoding: .utf8) ?? ""
         return output.components(separatedBy: "\n").filter { !$0.isEmpty }
     }

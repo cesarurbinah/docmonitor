@@ -31,6 +31,8 @@ enum UnixSocket {
         }
 
         guard result == 0 else {
+            let err = errno
+            print("DocMonitor: connect(\(path)) failed, errno \(err): \(String(cString: strerror(err)))")
             close(fd)
             throw UnixSocketError.connectFailed
         }

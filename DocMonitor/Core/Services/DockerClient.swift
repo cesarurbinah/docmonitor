@@ -6,48 +6,22 @@ class DockerClient {
     
     private static let jsonDecoder = JSONDecoder()
 
-    // Containers
+    // MARK: - Containers
     func fetchContainers() async throws -> [DockerContainer] {
-        let responseData = try await performBlocking {
-            try self.sendRequest(
-                "GET /containers/json?all=true HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n"
-            )
-        }
-
-        guard let separatorRange = responseData.range(of: Data("\r\n\r\n".utf8)) else {
-            throw DockerError.emptyResponse
-        }
-
-        let headerData = responseData[..<separatorRange.lowerBound]
-        let rawBody    = Data(responseData[separatorRange.upperBound...])
-        let headers    = String(data: headerData, encoding: .utf8) ?? ""
-        let isChunked  = headers.lowercased().contains("transfer-encoding: chunked")
-        let body       = isChunked ? Self.decodeChunked(rawBody) : rawBody
-
-        do {
-            return try Self.jsonDecoder.decode([DockerContainer].self, from: body)
-        } catch {
-            let raw = String(data: body, encoding: .utf8) ?? "unreadable"
-            throw DockerError.decodingFailed(String(raw.prefix(300)))
-        }
+        let response = try await request("GET /containers/json?all=true HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n")
+        return try decode([DockerContainer].self, from: response.body)
     }
 
     func startContainer(id: String) async throws {
-        _ = try await performBlocking {
-            try self.sendRequest("POST /containers/\(id)/start HTTP/1.1\r\nHost: localhost\r\nContent-Length: 0\r\nConnection: close\r\n\r\n")
-        }
+        try await request("POST /containers/\(id)/start HTTP/1.1\r\nHost: localhost\r\nContent-Length: 0\r\nConnection: close\r\n\r\n")
     }
 
     func stopContainer(id: String) async throws {
-        _ = try await performBlocking {
-            try self.sendRequest("POST /containers/\(id)/stop HTTP/1.1\r\nHost: localhost\r\nContent-Length: 0\r\nConnection: close\r\n\r\n")
-        }
+        try await request("POST /containers/\(id)/stop HTTP/1.1\r\nHost: localhost\r\nContent-Length: 0\r\nConnection: close\r\n\r\n")
     }
 
     func deleteContainer(id: String) async throws {
-        _ = try await performBlocking {
-            try self.sendRequest("DELETE /containers/\(id)?force=true HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n")
-        }
+        try await request("DELETE /containers/\(id)?force=true HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n")
     }
     
     func createContainer(
@@ -110,62 +84,30 @@ class DockerClient {
         let bodyJSON  = String(data: bodyData, encoding: .utf8) ?? "{}"
         let bodyBytes = bodyData.count
 
-        let request = "POST /containers/create?name=\(containerName) HTTP/1.1\r\n" +
-                      "Host: localhost\r\n" +
-                      "Content-Type: application/json\r\n" +
-                      "Content-Length: \(bodyBytes)\r\n" +
-                      "Connection: close\r\n\r\n" +
-                      bodyJSON
+        let httpRequest = "POST /containers/create?name=\(containerName) HTTP/1.1\r\n" +
+                          "Host: localhost\r\n" +
+                          "Content-Type: application/json\r\n" +
+                          "Content-Length: \(bodyBytes)\r\n" +
+                          "Connection: close\r\n\r\n" +
+                          bodyJSON
 
-        let responseData = try await performBlocking {
-            try self.sendRequest(request)
-        }
-
-        guard let headerEnd = responseData.range(of: Data("\r\n\r\n".utf8)) else {
-            throw DockerError.emptyResponse
-        }
-        let headerString = String(data: responseData[..<headerEnd.lowerBound], encoding: .utf8) ?? ""
-        let statusLine   = headerString.components(separatedBy: "\r\n").first ?? ""
-        let statusCode   = Int(statusLine.components(separatedBy: " ").dropFirst().first ?? "") ?? 0
-
-        switch statusCode {
+        let response = try await send(httpRequest)
+        switch response.status {
         case 201: return
         case 404: throw DockerError.requestFailed("Image '\(imageName)' not found locally")
         case 409: throw DockerError.requestFailed("Container name '\(name)' already exists")
-        default:  throw DockerError.requestFailed("Unexpected status: \(statusCode)")
+        default:  try response.requireSuccess()
         }
     }
     
-    // Images
+    // MARK: - Images
     func fetchImages() async throws -> [DockerImage] {
-        let responseData = try await performBlocking {
-            try self.sendRequest(
-                "GET /images/json HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n"
-            )
-        }
-
-        guard let separatorRange = responseData.range(of: Data("\r\n\r\n".utf8)) else {
-            throw DockerError.emptyResponse
-        }
-
-        let headerData = responseData[..<separatorRange.lowerBound]
-        let rawBody    = Data(responseData[separatorRange.upperBound...])
-        let headers    = String(data: headerData, encoding: .utf8) ?? ""
-        let isChunked  = headers.lowercased().contains("transfer-encoding: chunked")
-        let body       = isChunked ? Self.decodeChunked(rawBody) : rawBody
-
-        do {
-            return try Self.jsonDecoder.decode([DockerImage].self, from: body)
-        } catch {
-            let raw = String(data: body, encoding: .utf8) ?? "unreadable"
-            throw DockerError.decodingFailed(String(raw.prefix(300)))
-        }
+        let response = try await request("GET /images/json HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n")
+        return try decode([DockerImage].self, from: response.body)
     }
-
+    
     func deleteImage(id: String) async throws {
-        _ = try await performBlocking {
-            try self.sendRequest("DELETE /images/\(id)?force=false HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n")
-        }
+        try await request("DELETE /images/\(id)?force=false HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n")
     }
     
     func pullImage(name: String, onProgress: @escaping @MainActor (String) -> Void) async throws {
@@ -191,29 +133,64 @@ class DockerClient {
                 headerBuffer.append(contentsOf: bigBuffer[..<n])
             }
 
+            // A non-200 here means the pull never started (e.g. 404 repository not found)
+            let head   = String(data: headerBuffer, encoding: .utf8) ?? ""
+            let status = Self.statusCode(inHead: head)
+            guard status == 200 else {
+                var rest = Data()
+                while true {
+                    let n = read(fd, &bigBuffer, bigBuffer.count)
+                    if n <= 0 { break }
+                    rest.append(contentsOf: bigBuffer[..<n])
+                }
+                let body = headerBuffer.range(of: separator).map { headerBuffer[$0.upperBound...] } ?? Data()
+                let raw  = String(data: body + rest, encoding: .utf8) ?? ""
+                let message = raw
+                    .components(separatedBy: "\n")
+                    .compactMap { line -> String? in
+                        guard let data = line.data(using: .utf8) else { return nil }
+                        return (try? Self.jsonDecoder.decode(PullProgressEvent.self, from: data))?.message
+                    }
+                    .first
+                throw DockerError.requestFailed(message ?? "Docker returned status \(status)")
+            }
+
+            var pullFailure: String?
             var lineBuffer = ""
             var readBuf    = [UInt8](repeating: 0, count: 512)
             while true {
                 let n = read(fd, &readBuf, readBuf.count)
                 if n <= 0 { break }
-                let chunk = String(bytes: readBuf[..<n], encoding: .utf8) ?? ""
-                lineBuffer += chunk
+                lineBuffer += String(bytes: readBuf[..<n], encoding: .utf8) ?? ""
 
                 while let newline = lineBuffer.firstIndex(of: "\n") {
                     let line = String(lineBuffer[..<newline]).trimmingCharacters(in: .whitespaces)
                     lineBuffer = String(lineBuffer[lineBuffer.index(after: newline)...])
 
-                    if !line.isEmpty && line.hasPrefix("{") {
-                        if let data  = line.data(using: .utf8),
-                           let event = try? Self.jsonDecoder.decode(PullProgressEvent.self, from: data) {
-                            let progress = event.progress ?? ""
-                            let msg      = progress.isEmpty ? event.status : "\(event.status) \(progress)"
-                            Task { @MainActor in onProgress(msg) }
-                        }
+                    guard line.hasPrefix("{"),
+                          let data  = line.data(using: .utf8),
+                          let event = try? Self.jsonDecoder.decode(PullProgressEvent.self, from: data) else { continue }
+
+                    if let failure = event.error {
+                        pullFailure = failure          // mid-stream failure arrives as {"error": ...}
+                    } else if let status = event.status {
+                        let progress = event.progress ?? ""
+                        let msg      = progress.isEmpty ? status : "\(status) \(progress)"
+                        Task { @MainActor in onProgress(msg) }
                     }
                 }
             }
+
+            if let pullFailure { throw DockerError.requestFailed(pullFailure) }
         }
+    }
+
+    // One line of the streaming `/images/create` response: progress, a mid-stream error, or an HTTP-level message
+    private nonisolated struct PullProgressEvent: Decodable {
+        let status: String?
+        let progress: String?
+        let error: String?
+        let message: String?
     }
 
     private static func decodeChunked(_ data: Data) -> Data {
@@ -309,17 +286,67 @@ class DockerClient {
         }
     }
     
-    // One line of the streaming `/images/create` pull progress response
-    private nonisolated struct PullProgressEvent: Decodable {
-        let status: String
-        let progress: String?
-    }
-    
     private func performBlocking<T: Sendable>(
         _ work: @escaping @Sendable () throws -> T
     ) async throws -> T {
         try await Task.detached(priority: .userInitiated) {
             try work()
         }.value
+    }
+    
+    // HTTP response
+    private nonisolated struct HTTPResponse {
+        let status: Int
+        let body: Data
+
+        private struct DaemonErrorBody: Decodable { let message: String }
+
+        // 304 = "already started/stopped": Docker uses it for no-op start/stop
+        @discardableResult
+        func requireSuccess() throws -> HTTPResponse {
+            guard (200..<300).contains(status) || status == 304 else {
+                let message = (try? JSONDecoder().decode(DaemonErrorBody.self, from: body))?.message
+                throw DockerError.requestFailed(message ?? "Docker returned status \(status)")
+            }
+            return self
+        }
+    }
+
+    private nonisolated static func statusCode(inHead head: String) -> Int {
+        let statusLine = head.components(separatedBy: "\r\n").first ?? ""
+        return Int(statusLine.split(separator: " ").dropFirst().first ?? "") ?? 0
+    }
+
+    private nonisolated static func parse(_ raw: Data) throws -> HTTPResponse {
+        guard let separator = raw.range(of: Data("\r\n\r\n".utf8)) else {
+            throw DockerError.emptyResponse
+        }
+        let head      = String(data: raw[..<separator.lowerBound], encoding: .utf8) ?? ""
+        let rawBody   = Data(raw[separator.upperBound...])
+        let isChunked = head.lowercased().contains("transfer-encoding: chunked")
+        return HTTPResponse(
+            status: statusCode(inHead: head),
+            body: isChunked ? decodeChunked(rawBody) : rawBody
+        )
+    }
+
+    private func send(_ httpRequest: String) async throws -> HTTPResponse {
+        let raw = try await performBlocking { try self.sendRequest(httpRequest) }
+        return try Self.parse(raw)
+    }
+
+    // send + validate: any status outside 2xx/304 throws with the daemon's own message
+    @discardableResult
+    private func request(_ httpRequest: String) async throws -> HTTPResponse {
+        try await send(httpRequest).requireSuccess()
+    }
+
+    private func decode<T: Decodable>(_ type: T.Type, from body: Data) throws -> T {
+        do {
+            return try Self.jsonDecoder.decode(T.self, from: body)
+        } catch {
+            let raw = String(data: body, encoding: .utf8) ?? "unreadable"
+            throw DockerError.decodingFailed(String(raw.prefix(300)))
+        }
     }
 }

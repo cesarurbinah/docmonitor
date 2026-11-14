@@ -22,9 +22,9 @@ class DockerBuildService {
             "/opt/homebrew/sbin",
             "/Applications/Docker.app/Contents/Resources/bin"
         ].joined(separator: ":")
-        process.environment = env
         
         env["DOCKER_HOST"] = DockerEnvironment.dockerHost
+        process.environment = env
 
         let throttleQueue               = DispatchQueue(label: "docmonitor.build-output-throttle")
         var pendingOutput               = ""

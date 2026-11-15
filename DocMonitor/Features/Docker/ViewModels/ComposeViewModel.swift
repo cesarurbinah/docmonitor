@@ -66,7 +66,12 @@ class ComposeViewModel {
     func refresh() async {
         // If Docker is unreachable, ContainersViewModel already surfaces the error; here it just means "no containers"
         let containers = (try? await dockerClient.fetchContainers()) ?? []
+        apply(containers)
+    }
 
+    // Pure derivation from an already-fetched list: no I/O, so callers that just refreshed containers can reuse it
+    @MainActor
+    func apply(_ containers: [DockerContainer]) {
         for index in projects.indices {
             let project = projects[index]
             projects[index].serviceStatuses = project.statuses(from: containers)

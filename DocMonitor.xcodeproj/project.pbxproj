@@ -32,7 +32,6 @@
 		DBD6B50730428BC800C8E719 /* DockerContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBD6B4E63042858500C8E719 /* DockerContainer.swift */; };
 		DBD6B50830428BC800C8E719 /* ServicesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBD6B4E9304285EB00C8E719 /* ServicesViewModel.swift */; };
 		DBD6B50930428BC800C8E719 /* DockerClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBD6B4E8304285B300C8E719 /* DockerClient.swift */; };
-		DBD6B50A30428BC800C8E719 /* SystemProcessService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBD6B4E7304285A200C8E719 /* SystemProcessService.swift */; };
 		DBD6B50B30428BC800C8E719 /* LocalService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBD6B4E53042857400C8E719 /* LocalService.swift */; };
 		DBD6B5123042944500C8E719 /* ContainersViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBD6B4EA3042860400C8E719 /* ContainersViewModel.swift */; };
 		DBD6B5133042944500C8E719 /* ContainersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBD6B50F3042920E00C8E719 /* ContainersView.swift */; };
@@ -82,7 +81,6 @@
 		DBD6B4E43042855700C8E719 /* DockerError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DockerError.swift; sourceTree = "<group>"; };
 		DBD6B4E53042857400C8E719 /* LocalService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalService.swift; sourceTree = "<group>"; };
 		DBD6B4E63042858500C8E719 /* DockerContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DockerContainer.swift; sourceTree = "<group>"; };
-		DBD6B4E7304285A200C8E719 /* SystemProcessService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemProcessService.swift; sourceTree = "<group>"; };
 		DBD6B4E8304285B300C8E719 /* DockerClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DockerClient.swift; sourceTree = "<group>"; };
 		DBD6B4E9304285EB00C8E719 /* ServicesViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServicesViewModel.swift; sourceTree = "<group>"; };
 		DBD6B4EA3042860400C8E719 /* ContainersViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContainersViewModel.swift; sourceTree = "<group>"; };
@@ -191,7 +189,6 @@
 				DBD6B5C63057095300C8E719 /* DockerBuildService.swift */,
 				DBD6B56C3046714D00C8E719 /* ComposeService.swift */,
 				DBD6B4E8304285B300C8E719 /* DockerClient.swift */,
-				DBD6B4E7304285A200C8E719 /* SystemProcessService.swift */,
 				DB0A80733096D50300A57C5A /* DockerEnvironment.swift */,
 				DB0A807D3097CB1000A57C5A /* UpdateService.swift */,
 				DB0A80853097D14500A57C5A /* ComposeProjectStore.swift */,
@@ -421,7 +418,6 @@
 				DBD6B50830428BC800C8E719 /* ServicesViewModel.swift in Sources */,
 				DB0A80703096805500A57C5A /* GeneralPreferencesView.swift in Sources */,
 				DBD6B50930428BC800C8E719 /* DockerClient.swift in Sources */,
-				DBD6B50A30428BC800C8E719 /* SystemProcessService.swift in Sources */,
 				DBD6B5E13064852400C8E719 /* UnixSocket.swift in Sources */,
 				DBD6B5E3306718BF00C8E719 /* DockerSettleDelay.swift in Sources */,
 				DB0A80843097CE5900A57C5A /* AppLinks.swift in Sources */,

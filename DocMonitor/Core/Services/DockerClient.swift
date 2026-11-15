@@ -8,7 +8,7 @@ class DockerClient {
 
     // MARK: - Containers
     func fetchContainers() async throws -> [DockerContainer] {
-        let response = try await request("GET /containers/json?all=true HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n")
+        let response = try await request("GET /containers/json?all=true HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n", timeout: 5)
         return try decode([DockerContainer].self, from: response.body)
     }
 
@@ -102,7 +102,7 @@ class DockerClient {
     
     // MARK: - Images
     func fetchImages() async throws -> [DockerImage] {
-        let response = try await request("GET /images/json HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n")
+        let response = try await request("GET /images/json HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n", timeout: 5)
         return try decode([DockerImage].self, from: response.body)
     }
     
@@ -184,6 +184,14 @@ class DockerClient {
             if let pullFailure { throw DockerError.requestFailed(pullFailure) }
         }
     }
+    
+    // /_ping answers 200 "OK" only when the engine behind the socket is alive
+    func isDaemonResponding() async -> Bool {
+        guard let response = try? await send("GET /_ping HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n", timeout: 2) else {
+            return false
+        }
+        return response.status == 200
+    }
 
     // One line of the streaming `/images/create` response: progress, a mid-stream error, or an HTTP-level message
     private nonisolated struct PullProgressEvent: Decodable {
@@ -218,9 +226,10 @@ class DockerClient {
         return result
     }
 
-    private func sendRequest(_ httpRequest: String) throws -> Data {
+    private func sendRequest(_ httpRequest: String, timeout: Int? = nil) throws -> Data {
         let fd = try openDockerSocket()
         defer { close(fd) }
+        if let timeout { UnixSocket.setTimeout(timeout, on: fd) }
 
         var requestBytes = Array(httpRequest.utf8)
         guard write(fd, &requestBytes, requestBytes.count) >= 0 else {
@@ -231,6 +240,9 @@ class DockerClient {
         var buffer   = [UInt8](repeating: 0, count: 8192)
         while true {
             let n = read(fd, &buffer, buffer.count)
+            if n < 0, errno == EAGAIN {
+                throw DockerError.requestFailed("Docker is not responding")
+            }
             if n <= 0 { break }
             response.append(contentsOf: buffer[..<n])
         }
@@ -330,15 +342,14 @@ class DockerClient {
         )
     }
 
-    private func send(_ httpRequest: String) async throws -> HTTPResponse {
-        let raw = try await performBlocking { try self.sendRequest(httpRequest) }
+    private func send(_ httpRequest: String, timeout: Int? = nil) async throws -> HTTPResponse {
+        let raw = try await performBlocking { try self.sendRequest(httpRequest, timeout: timeout) }
         return try Self.parse(raw)
     }
 
-    // send + validate: any status outside 2xx/304 throws with the daemon's own message
     @discardableResult
-    private func request(_ httpRequest: String) async throws -> HTTPResponse {
-        try await send(httpRequest).requireSuccess()
+    private func request(_ httpRequest: String, timeout: Int? = nil) async throws -> HTTPResponse {
+        try await send(httpRequest, timeout: timeout).requireSuccess()
     }
 
     private func decode<T: Decodable>(_ type: T.Type, from body: Data) throws -> T {

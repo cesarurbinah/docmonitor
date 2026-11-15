@@ -211,12 +211,13 @@ struct ContentView: View {
                 }
             }
         }
-        .onChange(of: imagesVM.pullSuccess) { _, success in
+        .onChange(of: buildVM.buildSuccess) { _, success in
             if success {
                 withAnimation(.spring(duration: 0.35, bounce: 0.15)) {
-                    pullExpanded  = false
-                    pullImageName = ""
+                    buildExpanded = false
+                    buildVM.reset()
                 }
+                Task { await imagesVM.refresh() }
             }
         }
         .onAppear {

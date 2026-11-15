@@ -6,6 +6,13 @@ enum UnixSocketError: Error {
 }
 
 enum UnixSocket {
+    nonisolated static func setTimeout(_ seconds: Int, on fd: Int32) {
+        var timeout = timeval(tv_sec: seconds, tv_usec: 0)
+        let size = socklen_t(MemoryLayout<timeval>.size)
+        setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, &timeout, size)
+        setsockopt(fd, SOL_SOCKET, SO_SNDTIMEO, &timeout, size)
+    }
+    
     nonisolated static func makeConnection(to path: String) throws -> Int32 {
         guard FileManager.default.fileExists(atPath: path) else {
             throw UnixSocketError.notFound

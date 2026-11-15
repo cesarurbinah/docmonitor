@@ -127,8 +127,8 @@ private struct ComposeBadge: View {
     var body: some View {
         HStack(spacing: 4) {
             Circle()
-                .fill(color.opacity(status == .stopped ? 0.8 : 1.0))
-                .frame(width: AppIcon.composeDot, height: AppIcon.composeDot)
+                .fill(color.opacity(status == .stopped ? 0.8 : 0.8))
+                .frame(width: AppIcon.composeDot, height: AppIcon.composeDot).padding(.top, 1)
                 .shadow(color: status == .running ? color.opacity(0.6) : .clear, radius: 3)
             Text(label)
                 .font(AppFont.statusCompose)
@@ -136,10 +136,5 @@ private struct ComposeBadge: View {
         }
         .padding(.horizontal, 7)
         .padding(.vertical, 3)
-        .background(
-            Capsule()
-                .fill(.white.opacity(0.12))
-                .strokeBorder(.white.opacity(0.18), lineWidth: 0.5)
-        )
     }
 }

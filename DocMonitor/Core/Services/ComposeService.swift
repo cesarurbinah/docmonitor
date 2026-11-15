@@ -17,44 +17,6 @@ class ComposeService {
         try runCompose(args: ["compose", "down"], workingDirectory: projectDir)
     }
 
-    func refreshStatus(for project: DockerComposeProject) -> [String: DockerComposeProject.ComposeServiceStatus] {
-        let projectDir = URL(fileURLWithPath: project.filePath)
-            .deletingLastPathComponent().path
-
-        guard let output = runComposeOutput(
-            args: ["compose", "ps", "--format", "json"],
-            workingDirectory: projectDir
-        ), !output.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
-            return [:]
-        }
-
-        let trimmed = output.trimmingCharacters(in: .whitespacesAndNewlines)
-        let decoder = JSONDecoder()
-        let entries: [ComposeServiceEntry]
-
-        // Try JSON array first (Docker Compose v2.21+)
-        if trimmed.hasPrefix("["),
-           let data       = trimmed.data(using: .utf8),
-           let rawEntries = try? decoder.decode([FailableDecodable<ComposeServiceEntry>].self, from: data) {
-            entries = rawEntries.compactMap(\.value)
-        } else {
-            // Fallback: one JSON object per line (older versions)
-            entries = trimmed
-                .components(separatedBy: "\n")
-                .filter { $0.hasPrefix("{") }
-                .compactMap { line in
-                    guard let data = line.data(using: .utf8) else { return nil }
-                    return try? decoder.decode(ComposeServiceEntry.self, from: data)
-                }
-        }
-
-        var statuses: [String: DockerComposeProject.ComposeServiceStatus] = [:]
-        for entry in entries {
-            statuses[entry.service] = entry.state == "running" ? .running : .stopped
-        }
-        return statuses
-    }
-
     @discardableResult
     private func runCompose(args: [String], workingDirectory: String) throws -> Data {
         let process = Process()
@@ -102,29 +64,6 @@ class ComposeService {
         }
 
         return outputData
-    }
-
-    private func runComposeOutput(args: [String], workingDirectory: String) -> String? {
-        guard let data = try? runCompose(args: args, workingDirectory: workingDirectory) else {
-            return nil
-        }
-        return String(data: data, encoding: .utf8)
-    }
-    
-    private struct ComposeServiceEntry: Decodable {
-        let service: String
-        let state: String
-        enum CodingKeys: String, CodingKey {
-            case service = "Service"
-            case state   = "State"
-        }
-    }
-
-    private struct FailableDecodable<Wrapped: Decodable>: Decodable {
-        let value: Wrapped?
-        init(from decoder: Decoder) throws {
-            value = try? Wrapped(from: decoder)
-        }
     }
 }
 

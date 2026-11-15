@@ -9,21 +9,28 @@ class ComposeViewModel {
     var error: String?
     var isLoadingProjectId: UUID?
     
-    // Internal Compose project name being stopped — matches com.docker.compose.project label
+    private let dockerClient = DockerClient.shared
+
+    // filePath -> real Compose project name (known only while the project has containers)
+    private var resolvedNames: [String: String] = [:]
+
+    private func composeName(for project: DockerComposeProject) -> String {
+        resolvedNames[project.filePath] ?? project.displayName.lowercased()
+    }
+
     var lockedComposeProject: String? {
         guard let loadingId = isLoadingProjectId,
               let project   = projects.first(where: { $0.id == loadingId }) else {
             return nil
         }
-        return project.displayName.lowercased()
+        return composeName(for: project)
     }
-    
-    // Project names currently running — containers belonging to these should not be deleted
+
     var activeComposeProjects: Set<String> {
         Set(
             projects
                 .filter { $0.overallStatus == .running || $0.overallStatus == .partial }
-                .map { $0.displayName.lowercased() }
+                .map { composeName(for: $0) }
         )
     }
     
@@ -57,24 +64,13 @@ class ComposeViewModel {
 
     @MainActor
     func refresh() async {
-        let snapshot = projects
-        let service  = composeService
+        // If Docker is unreachable, ContainersViewModel already surfaces the error; here it just means "no containers"
+        let containers = (try? await dockerClient.fetchContainers()) ?? []
 
-        let updated: [DockerComposeProject] = await performBlocking {
-            var result = snapshot
-            result.withUnsafeMutableBufferPointer { buffer in
-                DispatchQueue.concurrentPerform(iterations: buffer.count) { index in
-                    buffer[index].serviceStatuses = service.refreshStatus(for: buffer[index])
-                }
-            }
-            return result
-        }
-
-        let statusesByPath = Dictionary(updated.map { ($0.filePath, $0.serviceStatuses) }, uniquingKeysWith: { _, latest in latest })
         for index in projects.indices {
-            if let statuses = statusesByPath[projects[index].filePath] {
-                projects[index].serviceStatuses = statuses
-            }
+            let project = projects[index]
+            projects[index].serviceStatuses = project.statuses(from: containers)
+            resolvedNames[project.filePath] = project.composeProjectName(from: containers)
         }
     }
 
@@ -149,11 +145,10 @@ class ComposeViewModel {
             self.manualPaths.insert(url.path)
 
             Task { @MainActor in
-                var enriched = project
-                enriched.serviceStatuses = self.composeService.refreshStatus(for: project)
-                self.projects.append(enriched)
+                self.projects.append(project)
                 self.projects.sort { $0.displayName.lowercased() < $1.displayName.lowercased() }
                 self.persistProjects()
+                await self.refresh()
             }
         }
     }

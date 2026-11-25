@@ -189,7 +189,7 @@ struct ContentView: View {
                 .padding(.bottom, 8)
             }
         }
-        .frame(width: 308)
+        .frame(width: 304)
         .fixedSize(horizontal: false, vertical: true)
         .background(CenterUnderStatusItem())
         .scaleEffect(isVisible ? 1.0 : 0.92)

@@ -41,8 +41,10 @@ struct ContentView: View {
                     } label: {
                         Image(systemName: "arrow.clockwise")
                             .font(.system(size: 12, weight: .medium))
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 4)
                     }
-                    .buttonStyle(.glass)
+                    .buttonStyle(CapsuleButtonStyle())
                     .controlSize(.small)
                 }
                 .padding(.horizontal, 16)
@@ -154,7 +156,7 @@ struct ContentView: View {
                             .lineLimit(2)
                     }
                     .padding(10)
-                    .glassEffect(.regular, in: RoundedRectangle(cornerRadius: 10))
+                    .cardSurface()
                     .padding(.horizontal, 12)
                     .padding(.bottom, 6)
                 }

@@ -26,7 +26,7 @@ struct ComposeView: View {
                         )
                     }
                 }
-                .glassEffect(.regular, in: RoundedRectangle(cornerRadius: 12))
+                .cardSurface()
             }
 
             // Button

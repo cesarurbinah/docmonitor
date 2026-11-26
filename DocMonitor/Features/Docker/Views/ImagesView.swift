@@ -108,7 +108,7 @@ struct ImagesView: View {
                         Spacer().frame(height: 4)
                     }
                     .animation(.spring(duration: 0.4, bounce: 0.1), value: images.count)
-                    .glassEffect(.regular, in: RoundedRectangle(cornerRadius: 12))
+                    .cardSurface()
                     .transition(.opacity)
                 }
                 

@@ -42,7 +42,7 @@ struct ContainersView: View {
                     )
                 }
             }
-            .glassEffect(.regular, in: RoundedRectangle(cornerRadius: 12))
+            .cardSurface()
         }
         .padding(.horizontal, 12)
         .padding(.bottom, 6)

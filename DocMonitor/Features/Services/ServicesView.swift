@@ -13,7 +13,7 @@ struct ServicesView: View {
                     ServiceRow(service: service)
                 }
             }
-            .glassEffect(.regular, in: RoundedRectangle(cornerRadius: 12))
+            .cardSurface()
         }
         .padding(.horizontal, 12)
         .padding(.bottom, 6)

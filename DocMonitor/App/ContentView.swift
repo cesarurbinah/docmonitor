@@ -6,6 +6,7 @@ struct ContentView: View {
     @State private var containersVM                = ContainersViewModel()
     @State private var imagesVM                    = ImagesViewModel()
     @State private var isVisible                   = false
+    @State private var buildExpanded               = false
     @State private var pullImageName               = ""
     @State private var composeVM                   = ComposeViewModel()
     @State private var isComposeBusy               = false
@@ -13,7 +14,6 @@ struct ContentView: View {
     
     @AppStorage("imagesExpanded") private var imagesExpanded = false
     @AppStorage("pullExpanded")   private var pullExpanded   = false
-    @AppStorage("buildExpanded") private var buildExpanded   = false
     @AppStorage(PreferenceKey.showStoppedContainers) private var showStoppedContainers = PreferenceDefault.showStoppedContainers
     @AppStorage(PreferenceKey.refreshInterval) private var refreshInterval = PreferenceDefault.refreshInterval
     
@@ -111,6 +111,8 @@ struct ContentView: View {
                             if !imagesExpanded {
                                 pullExpanded  = false
                                 pullImageName = ""
+                                buildExpanded = false
+                                buildVM.reset()
                             }
                         }
                     },
@@ -224,10 +226,9 @@ struct ContentView: View {
         }
         .onAppear {
             isVisible = true
-            imagesExpanded = alwaysExpandImages
+            imagesExpanded = alwaysExpandImages || buildExpanded
             if !alwaysExpandImages {
-                pullExpanded  = false
-                buildExpanded = false
+                pullExpanded = false
             }
             composeVM.persistProjects()
             refresh()
@@ -235,7 +236,6 @@ struct ContentView: View {
         .onDisappear {
             isVisible = false
             pullImageName = ""
-            buildVM.reset()
             NSApp.keyWindow?.makeFirstResponder(nil)
         }
         .task(id: refreshInterval) {

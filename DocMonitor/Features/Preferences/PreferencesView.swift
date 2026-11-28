@@ -56,7 +56,7 @@ struct PreferencesView: View {
                         Text(pane.title)
                     } icon: {
                         Image(systemName: pane.icon)
-                            .font(.system(size: 16.5))
+                            .font(.system(size: 14))
                     }
                     .tag(pane)
                 }

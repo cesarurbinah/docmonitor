@@ -11,7 +11,7 @@ struct BuildImageView: View {
             HStack(spacing: 8) {
                 Text(vm.contextPath.isEmpty ? "Dockerfile directory" : vm.contextPath)
                     .font(AppFont.action)
-                    .foregroundStyle(vm.contextPath.isEmpty ? .tertiary : .secondary)
+                    .foregroundStyle(vm.contextPath.isEmpty ? AppForeground.placeholder : AnyShapeStyle(HierarchicalShapeStyle.secondary))
                     .lineLimit(1)
                     .truncationMode(.head)
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -38,7 +38,7 @@ struct BuildImageView: View {
             TextField(
                 "",
                 text: $vm.imageName,
-                prompt: Text("Image name").foregroundStyle(.tertiary)
+                prompt: Text("Image name").foregroundStyle(AppForeground.placeholder)
             )
             .textFieldStyle(.plain)
             .font(AppFont.body)

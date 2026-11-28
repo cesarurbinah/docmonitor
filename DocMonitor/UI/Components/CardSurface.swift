@@ -1,10 +1,3 @@
-//
-//  CardSurface.swift
-//  DocMonitor
-//
-//  Created by Cesar Iván Urbiña Hernández on 26/11/26.
-//
-
 import SwiftUI
 
 extension View {

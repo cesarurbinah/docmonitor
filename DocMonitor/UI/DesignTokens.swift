@@ -60,6 +60,21 @@ enum AppSurface {
     static let cardStroke: Double = 0.30
 }
 
+// MARK: - Foreground
+
+enum AppForeground {
+    // Placeholder opacity in macOS 27 (in macOS 26, `.tertiary` remains unchanged).
+    static let placeholderOpacity: Double = 0.25
+
+    static var placeholder: AnyShapeStyle {
+        if #available(macOS 27, *) {
+            return AnyShapeStyle(Color.primary.opacity(placeholderOpacity))
+        } else {
+            return AnyShapeStyle(HierarchicalShapeStyle.tertiary)
+        }
+    }
+}
+
 // MARK: - Control Sizes
 
 enum AppControl {

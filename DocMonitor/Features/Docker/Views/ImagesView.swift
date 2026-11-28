@@ -204,7 +204,7 @@ private struct PullImageView: View {
             TextField(
                 "",
                 text: $imageName,
-                prompt: Text("e.g. nginx:latest").foregroundStyle(.tertiary)
+                prompt: Text("e.g. nginx:latest").foregroundStyle(AppForeground.placeholder)
             )
             .textFieldStyle(.plain)
             .font(AppFont.body)

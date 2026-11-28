@@ -27,7 +27,7 @@ struct CreateContainerView: View {
                         TextField(
                             "",
                             text: $containerName,
-                            prompt: Text("e.g. my-nginx").foregroundStyle(.tertiary)
+                            prompt: Text("e.g. my-nginx").foregroundStyle(AppForeground.placeholder)
                         )
                         .textFieldStyle(.plain)
                         .font(AppFont.action)
@@ -64,7 +64,7 @@ struct CreateContainerView: View {
                                 TextField(
                                     "",
                                     text: $portBindings[index],
-                                    prompt: Text("e.g. 8080:80").foregroundStyle(.tertiary)
+                                    prompt: Text("e.g. 8080:80").foregroundStyle(AppForeground.placeholder)
                                 )
                                 .textFieldStyle(.plain)
                                 .font(AppFont.action)
@@ -134,7 +134,7 @@ struct CreateContainerView: View {
                                 TextField(
                                     "",
                                     text: $envVars[index],
-                                    prompt: Text("e.g. DEBUG=true").foregroundStyle(.tertiary)
+                                    prompt: Text("e.g. DEBUG=true").foregroundStyle(AppForeground.placeholder)
                                 )
                                 .textFieldStyle(.plain)
                                 .font(AppFont.action)
